@@ -29,6 +29,19 @@
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
 
+    <script src="https://www.gstatic.com/firebasejs/3.5.1/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyC4sEnNcjlH5ub_lN6yLXE2OX98ffRLqpA",
+        authDomain: "rooster-app-8c1b9.firebaseapp.com",
+        databaseURL: "https://rooster-app-8c1b9.firebaseio.com",
+        storageBucket: "rooster-app-8c1b9.appspot.com",
+        messagingSenderId: ""
+      };
+      firebase.initializeApp(config);
+    </script>
+
     <!-- your app's js -->
     <script src="js/app.js"></script>
   </head>
