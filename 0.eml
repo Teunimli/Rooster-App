@@ -1,0 +1,103 @@
+Oorspronkelijk bericht
+
+Bericht-ID	<CAC0u+YnXsDnwtEhUj-R3ff5oPmpmOPHPGz9m11fcLt6NhsmGRg@mail.gmail.com>
+Gemaakt om:	22 mei 2016 om 22:15 (bezorgd na 3 seconden)
+Van:	Terry Duivesteijn <info@loungeroom.nl>
+Aan:	Teun Aarts <teun@loungeroom.nl>
+Onderwerp:	Standaard appje voor wijwijs
+SPF:	NEUTRAL met IP-adres 2a00:1450:4010:c04:0:0:0:22e Meer informatie
+DKIM:	PASS met domein loungeroom-nl.20150623.gappssmtp.com Meer informatie
+
+
+Oorspronkelijk bericht downloaden	Naar klembord kopiëren	
+Delivered-To: teun@loungeroom.nl
+Received: by 10.200.39.111 with SMTP id h44csp432242qth;
+        Sun, 22 May 2016 13:15:49 -0700 (PDT)
+X-Received: by 10.25.201.132 with SMTP id z126mr2506659lff.158.1463948147109;
+        Sun, 22 May 2016 13:15:47 -0700 (PDT)
+Return-Path: <info@loungeroom.nl>
+Received: from mail-lb0-x22e.google.com (mail-lb0-x22e.google.com. [2a00:1450:4010:c04::22e])
+        by mx.google.com with ESMTPS id h74si11750670lfi.183.2016.05.22.13.15.44
+        for <teun@loungeroom.nl>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 22 May 2016 13:15:45 -0700 (PDT)
+Received-SPF: neutral (google.com: 2a00:1450:4010:c04::22e is neither permitted nor denied by best guess record for domain of info@loungeroom.nl) client-ip=2a00:1450:4010:c04::22e;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@loungeroom-nl.20150623.gappssmtp.com;
+       spf=neutral (google.com: 2a00:1450:4010:c04::22e is neither permitted nor denied by best guess record for domain of info@loungeroom.nl) smtp.mailfrom=info@loungeroom.nl
+Received: by mail-lb0-x22e.google.com with SMTP id sh2so7882331lbb.1
+        for <teun@loungeroom.nl>; Sun, 22 May 2016 13:15:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=loungeroom-nl.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:date:message-id:subject:from:to;
+        bh=5ROy5iUkxbI8FpNDaH24jQSY0e+5FTu24X/Wg0ikud0=;
+        b=iAj+1HPUtY39LrpzzOmlqVsqNrOb5knOg3hIKbq73hpyI/8juoEGBjP/Jj7/r2Sng+
+         /qGlR+lKFNTxHCkqUS6fwMt0ERMgYiQy/rhviZKMlpbi2EPNzQp6NTUb3jQJV5vLUXFG
+         2RmBRt+9PZVdtG/u8Cx0b0D4t0oPVHjwf/HrS2VfmIK6wwbo4JvpWS451W46wNNW7XA4
+         lrEBNTCouIIG3KXNv6TYmsugx0jlH8mV8mojlTU/F6kn9zArnv2W8dzJgAYIIkrIp9jF
+         5PgqkwM4t0NBP8zcadTL7Z+fl+R9eDIQmS8tA4lVGeZzP9exZuyrvssH1aKFWG8EHgp1
+         mqXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20130820;
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=5ROy5iUkxbI8FpNDaH24jQSY0e+5FTu24X/Wg0ikud0=;
+        b=DXPHm0VC7l71A6h/tPNSZusNMAkCya26fSDlxUoDKVINPDIiwSchh0+V6cy8rEOUQx
+         b+kYW58utRElp1+6EG4T3gKqkiUs4qO31SBL39ZWU2KbI+HNo9dvNlDXEMnmvyonQj1S
+         4rRQup4wI+2m6st7dmpGwCQTvE4Z9G+7ZJ+CCmIdIMMwCe/oiPWWSt2AYasaYwXv7mYR
+         3hEmEv+Z/QGzNWKtnX6v63RsTRDiMYIvMLQJkZhSSNc48HsHg2zcfyZcG8jM0wIhF/4m
+         ac0k1ikF81iwM2/FLNq3y7A1IVEKS6RyUaFuBHSAZoHNwR8/Nfg8WvTAbKTcxtZxVoSd
+         tqFw==
+X-Gm-Message-State: AOPr4FXm2yzGv6pvGVPs1m2ylzdIcf37caLbso2VZvqoo0KQN+7g+LH5V5WsSkj7SGlLtXSBm/8zs9l+9P3jLg==
+MIME-Version: 1.0
+X-Received: by 10.112.9.200 with SMTP id c8mr4482331lbb.50.1463948143514; Sun, 22 May 2016 13:15:43 -0700 (PDT)
+Received: by 10.25.212.65 with HTTP; Sun, 22 May 2016 13:15:42 -0700 (PDT)
+Date: Sun, 22 May 2016 22:15:42 +0200
+Message-ID: <CAC0u+YnXsDnwtEhUj-R3ff5oPmpmOPHPGz9m11fcLt6NhsmGRg@mail.gmail.com>
+Subject: Standaard appje voor wijwijs
+From: Terry Duivesteijn <info@loungeroom.nl>
+To: Teun Aarts <teun@loungeroom.nl>
+Content-Type: multipart/mixed; boundary=001a1135e4261a5210053373fd59
+
+--001a1135e4261a5210053373fd59
+Content-Type: multipart/alternative; boundary=001a1135e4261a520a053373fd57
+
+--001a1135e4261a520a053373fd57
+Content-Type: text/plain; charset=UTF-8
+
+Zie bijlage
+--
+*LoungeRoom* -  http://www.loungeroom.nl/
+Scheldestraat 55
+4812 VJ  BREDA
+T: 076 88 66 301
+M: 06 218 491 73
+
+Indien de hierboven vermelde informatie niet voor u bestemd is, dan verzoek
+ik u vriendelijk hier mij van op de hoogte te stellen en de verzonden
+informatie te behandelen als vertrouwelijk.
+
+--001a1135e4261a520a053373fd57
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_default" style=3D"font-family:arial,he=
+lvetica,sans-serif">Zie bijlage</div><div><div class=3D"gmail_signature"><d=
+iv dir=3D"ltr"><div><div dir=3D"ltr"><div><span style=3D"font-size:12.80000=
+01907349px">--</span><br></div><div><b>LoungeRoom</b> - =C2=A0<a href=3D"ht=
+tp://www.loungeroom.nl/" target=3D"_blank">http://www.loungeroom.nl/</a><br=
+></div><div>Scheldestraat 55</div><div>4812 VJ =C2=A0BREDA</div><div>T:=C2=
+=A0076 88 66 301</div>M: 06 218 491 73<br><div><br></div><div>Indien de hie=
+rboven vermelde informatie niet voor u bestemd is, dan verzoek ik u vriende=
+lijk hier mij van op de hoogte te stellen en de verzonden informatie te beh=
+andelen als vertrouwelijk.</div></div></div></div></div></div>
+</div>
+
+--001a1135e4261a520a053373fd57--
+--001a1135e4261a5210053373fd59
+Content-Type: application/zip; name="codecanyon-15212793-ionsocialapp-ionic-social-template-.zip"
+Content-Disposition: attachment; filename="codecanyon-15212793-ionsocialapp-ionic-social-template-.zip"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_ioj0w6dq0
+
+
+--001a1135e4261a5210053373fd59--
