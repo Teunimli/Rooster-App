@@ -1,1 +1,8 @@
 /* Empty. Add your own CSS if you like */
+
+
+.app-logo {
+    width: 60%;
+    margin: 0 auto;
+    display: block;
+}
