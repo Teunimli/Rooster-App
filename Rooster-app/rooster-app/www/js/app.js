@@ -6,7 +6,8 @@
 angular.module('rooster', [
     'ionic',
     'firebase',
-    'rooster.app.controllers'
+    'rooster.app.controllers',
+    'rooster.app.services'
 ])
 
 .run(function($ionicPlatform) {
