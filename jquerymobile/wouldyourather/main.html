@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <title>Would you rather?</title>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script src="main.js"></script>
+</head>
+<body>
+<div data-role="page" id="home">
+
+    <div data-role="header">
+        <h2>Would you rather?</h2>
+    </div>
+
+    <div data-role="main">
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+                <a href="#dialog" data-role="button" data-transition="flip" class="btn" id="btn-a"></a>
+            </div>
+            <div class="ui-block-b">
+                <a href="#dialog" data-role="button" data-transition="flip" class="btn" id="btn-b"></a>
+            </div>
+        </div>
+    </div>
+
+    <div data-role="footer">
+    </div>
+
+</div>
+
+<div data-role="page" id="dialog" data-dialog="true">
+    <div data-role="header">
+        <h2>Would you rather?</h2>
+    </div>
+
+    <div data-role="main">
+        <h2 style="text-align: center" id="user-choice"></h2>
+        <a href="" data-role="button" class="next"> Volgende</a>
+    </div>
+
+    <div data-role="footer">
+    </div>
+
+</div>
+
+<div data-role="page" id="enddialog" data-dialog="true">
+    <div data-role="header">
+        <h2>Would you rather?</h2>
+    </div>
+
+    <div data-role="main">
+        <h2 style="text-align: center" >Thanks for playing and choosing the game</h2>
+    </div>
+
+    <div data-role="footer">
+    </div>
+
+</div>
+
+</body>
+
+</html>
