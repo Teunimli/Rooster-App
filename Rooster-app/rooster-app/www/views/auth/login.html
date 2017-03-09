@@ -10,15 +10,15 @@
                 <form name="login_form" class="" ng-submit="doLogIn()" novalidate>
                     <div class="form-fields-outer list list-inset">
                         <label class="item item-input">
-                            <input type="email" placeholder="E-mailadres" name="email" ng-model="formData.email" required>
+                            <input type="text" placeholder="Gebruikersnaam" name="username" ng-model="data.username" required>
                         </label>
                         <label class="item item-input" show-hide-container>
-                            <input type="password" placeholder="Wachtwoord" name="password" ng-model="formData.password" required show-hide-input>
+                            <input type="password" placeholder="Wachtwoord" name="password" ng-model="data.password" required show-hide-input>
                         </label>
-                        <button type="submit" class="login button button-block button-positive" ng-disabled="login_form.$invalid" ng-click="nextpage">
+                        <button type="submit" class="login button button-block button-positive" >
                             Inloggen
                         </button>
-                        <p ng-show="error" class="message error">{{error}}</p>
+                        <p ng-show="error" class="message error ">{{error}}</p>
                     </div>
                 </form>
             </div>

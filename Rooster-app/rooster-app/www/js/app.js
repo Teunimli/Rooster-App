@@ -35,6 +35,13 @@ angular.module('rooster', [
             templateUrl: "views/auth/login.html",
             controller: 'AuthCtrl'
           })
+
+	      .state('rooster', {
+		      url: "/rooster",
+		      templateUrl: "views/rooster/rooster.html",
+		      controller: 'AuthCtrl'
+	      })
+
       ;
       
       
