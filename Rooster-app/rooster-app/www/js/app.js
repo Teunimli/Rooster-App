@@ -6,8 +6,9 @@
 angular.module('rooster', [
     'ionic',
     'firebase',
+    'rooster.app.services',
     'rooster.app.controllers',
-    'rooster.app.services'
+    'ion-datetime-picker'
 ])
 
 .run(function($ionicPlatform) {
@@ -36,12 +37,17 @@ angular.module('rooster', [
             controller: 'AuthCtrl'
           })
 
-	      .state('rooster', {
-		      url: "/rooster",
-		      templateUrl: "views/rooster/rooster.html",
-		      controller: 'AuthCtrl'
-	      })
+          .state('rooster', {
+              url: "/rooster",
+              templateUrl   : "views/app/rooster.html",
+              controller: 'RoosterCtrl'
+          })
 
+          .state('lesson_add', {
+              url: "/lessen_add",
+              templateUrl   : "views/app/lesson_add.html",
+              controller: 'LessonCtrl'
+          })
       ;
       
       

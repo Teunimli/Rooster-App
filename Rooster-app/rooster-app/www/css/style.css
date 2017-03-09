@@ -6,3 +6,11 @@
     margin: 0 auto;
     display: block;
 }
+
+.form.lessonFrom{
+    margin-top: 100px;
+}
+
+h4{
+    margin-top: 20px;
+}
