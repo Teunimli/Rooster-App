@@ -1,8 +1,23 @@
 <ion-view class="rooster-view">
+
     <ion-content>
-        <div class="bar bar-header bar-dark">
-            <h1 class="title">Rooster</h1>
-            <button class="button button-dark ion-plus-round" ui-sref="lesson_add"></button>
+        <ion-list class="times">
+            <ion-item ng-repeat="time in times" >
+                {{time}}
+            </ion-item>
+        </ion-list>
+
+        <ion-list class="lessons">
+            <ion-item ng-repeat="lesson in todayLessons" >
+                {{ lesson.title }}
+            </ion-item>
+        </ion-list>
+
+        <div class="lesson">
+            Les
+        </div>
+        <div class="lesson lesson2">
+            Les2
         </div>
 
     </ion-content>

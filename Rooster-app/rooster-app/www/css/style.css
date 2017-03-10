@@ -7,10 +7,40 @@
     display: block;
 }
 
+
 .form.lessonFrom{
     margin-top: 100px;
 }
 
 h4{
     margin-top: 20px;
+}
+
+.menu-logo {
+    height: 100%;
+    margin: 0 auto;
+    display: block;
+}
+
+
+/* ROOSTER OVERZICHT*/
+
+.times {
+    float: right;
+    width: 17%;
+}
+.times ion-item {
+    font-size: 12px;
+}
+
+.lesson {
+    float: left;
+    background-color: #0a9dc7;
+    width: 83%;
+    height: 53px;
+}
+.lesson2 {
+    background-color: #3355f4;
+    height: 106px;
+    margin-top: 53px;
 }

@@ -31,23 +31,49 @@ angular.module('rooster', [
     
     .config(function ($stateProvider, $urlRouterProvider) {
       $stateProvider
+
+	      .state('app', {
+		      url: '/app',
+		      abstract: true,
+		      templateUrl: 'views/app/menu.html',
+		      controller: 'AppCtrl'
+	      })
+
           .state('login', {
             url: "/login",
             templateUrl: "views/auth/login.html",
             controller: 'AuthCtrl'
           })
 
-          .state('rooster', {
+          .state('app.rooster', {
               url: "/rooster",
-              templateUrl   : "views/app/rooster.html",
-              controller: 'RoosterCtrl'
+              views: {
+                  'menuContent': {
+	                  templateUrl   : "views/app/rooster.html",
+	                  controller: 'RoosterCtrl'
+                  }
+              }
           })
 
-          .state('lesson_add', {
+          .state('app.lesson_add', {
               url: "/lessen_add",
-              templateUrl   : "views/app/lesson_add.html",
-              controller: 'LessonCtrl'
+	          views: {
+		          'menuContent': {
+			          templateUrl   : "views/app/forms/lesson_add.html",
+			          controller: 'LessonCtrl'
+		          }
+	          }
           })
+
+	      .state('app.absence', {
+		      url: "/absence",
+		      views: {
+			      'menuContent': {
+				      templateUrl   : "views/absence/overview.html",
+				      controller: 'AbsenceCtrl'
+			      }
+		      }
+	      })
       ;
       
       
