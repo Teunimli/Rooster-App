@@ -33,6 +33,21 @@ h4{
     font-size: 12px;
 }
 
+.lessons ion-item {
+    height: 54px;
+    border: 0;
+    padding: 0;
+}
+.lessons ion-item .lessonContent {
+    padding: 5px;
+}
+
+.lessonActive {
+    width: 100%;
+    height: 100%;
+    background: #8cb2ec;
+}
+
 .lesson {
     float: left;
     background-color: #0a9dc7;

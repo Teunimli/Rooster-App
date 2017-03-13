@@ -2,7 +2,7 @@ angular.module('rooster.app.controllers', [])
 
 	.controller('AppCtrl', function($scope, $ionicModal, $state) {
 		$scope.logo = "img/logo.png";
-		
+
 		$scope.doLogOut = function () {
 			firebase.auth().signOut().then(function() {
 				$state.go('login');
@@ -24,7 +24,7 @@ angular.module('rooster.app.controllers', [])
 
 
         $scope.doLogIn = function () {
-	        
+
 
         	var auth = firebase.auth();
 	        var email = $scope.data.username + '@rocwb.nl';
@@ -46,35 +46,36 @@ angular.module('rooster.app.controllers', [])
     .controller('RoosterCtrl', function($scope, $ionicSideMenuDelegate){
 
 	    $scope.title = "Rooster";
+	    $scope.lessonsGrid = [];
 	    $scope.todayLessons = [];
 
 	    var times = [];
-	    var starttime = 8;
-	    var hours = starttime;
-	    var minutes = 0;
-	    var startcount = 0;
-	    for (var i = 0; i < 29; i++) {
+	    var hours = 8;
+	    var minutes = '00';
 
-	    		if(starttime == hours){
-	    			if(startcount == 0) {
-	    				minutes = '00';
-				    } else if(startcount == 1) {
-	    				minutes = 20;
-				    } else {
-	    				hours += 1;
-	    				minutes = '00';
-				    }
-				    startcount++;
-			    } else if(i % 2 == 0) {
-				    minutes = '00';
-				    hours += 1;
-			    } else {
-				    minutes = 20;
-			    }
-			    times.push(hours + ':' + minutes);
+	    do {
+		    times.push(hours + ':' + minutes);
+		    $scope.lessonsGrid.push({
+		    	"hour"          : hours,
+			    "minutes"       : minutes,
+			    "hasLesson"     : false,
+			    "title"         : '',
+			    "description"   : ''
+		    });
+		    if(minutes == '00') {
+			    minutes = 0;
+		    }
 
+		    if(minutes < 40) {
+			    minutes += 20;
 
+		    } else {
+			    hours++;
+			    minutes = '00';
+		    }
 	    }
+	    while (hours <= 22);
+
 	    $scope.times = times;
 
 
@@ -85,7 +86,7 @@ angular.module('rooster.app.controllers', [])
 	    lessons.on('value', function (data) {
 
 	    	var lessonsCollection = data.val();
-	    	var startdate, enddate, curdate = new Date(); 
+	    	var startdate, enddate, curdate = new Date();
 		    for (var i = 0; i < lessonsCollection.length; i++) {
 
 			    startdate = new Date( lessonsCollection[i].begin_date );
@@ -94,7 +95,43 @@ angular.module('rooster.app.controllers', [])
 			    if(curdate.getFullYear() === startdate.getFullYear()) {
 			    	if(curdate.getMonth() === startdate.getMonth()) {
 			    		if(curdate.getDate() === startdate.getDate()) {
-						    $scope.todayLessons.push(lessonsCollection[i]);
+						    for (var j = 0; j < $scope.lessonsGrid.length; j++) {
+								if(startdate.getMinutes() == 0) {
+									var minutes = '00';
+								} else {
+									var minutes = startdate.getMinutes();
+								}
+								if(!$scope.lessonsGrid[j].hasLesson) {
+									if ($scope.lessonsGrid[j].hour == startdate.getHours() && $scope.lessonsGrid[j].minutes == minutes) {
+										$scope.lessonsGrid[j].hasLesson = true;
+										$scope.lessonsGrid[j].title = lessonsCollection[i].title;
+										$scope.lessonsGrid[j].description = lessonsCollection[i].description;
+
+										if (enddate.getHours() - startdate.getHours() > 0) {
+											var looptime = 0;
+											if(enddate.getMinutes() - startdate.getMinutes() > 0) {
+												looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+											}
+											looptime += (enddate.getHours() - startdate.getHours()) * 3;
+
+											for (var k = 1; k <= looptime; k++) {
+												var number = j + k;
+												$scope.lessonsGrid[number].hasLesson = true;
+
+											}
+										} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+											var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+											for (var k = 1; k <= looptime; k++) {
+												var number = j + k;
+												$scope.lessonsGrid[number].hasLesson = true;
+
+											}
+										}
+
+									}
+								}
+
+						    }
 					    }
 				    }
 			    }

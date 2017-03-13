@@ -9,16 +9,23 @@
 
         <ion-list class="lessons">
             <ion-item ng-repeat="lesson in todayLessons" >
-                {{ lesson.title }}
+                {{lesson.begin_date}}
+
+            </ion-item>
+        </ion-list>
+        <ion-list class="lessons">
+            <ion-item ng-repeat="lesson in lessonsGrid">
+                <div ng-if="lesson.hasLesson == true" class="lessonActive">
+                    <div class="lessonContent">
+                        <b>{{lesson.title}}</b>
+                        <p>{{lesson.description}}</p>
+                    </div>
+                </div>
+
+
             </ion-item>
         </ion-list>
 
-        <div class="lesson">
-            Les
-        </div>
-        <div class="lesson lesson2">
-            Les2
-        </div>
 
     </ion-content>
 </ion-view>
