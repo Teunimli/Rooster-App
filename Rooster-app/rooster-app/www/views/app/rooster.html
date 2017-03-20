@@ -16,10 +16,12 @@
         <ion-list class="lessons">
             <ion-item ng-repeat="lesson in lessonsGrid">
                 <div ng-if="lesson.hasLesson == true" class="lessonActive">
-                    <div class="lessonContent">
-                        <b>{{lesson.title}}</b>
-                        <p>{{lesson.description}}</p>
-                    </div>
+                    <form name="login_form" class="" ng-submit="goToSingleLesson()" novalidate>
+                        <div class="lessonContent" ng-click="goToSingleLesson(lesson.ID)">
+                            <b>{{lesson.title}}</b>
+                            <p>{{lesson.description}}</p>
+                        </div>
+                    </form>
                 </div>
 
 

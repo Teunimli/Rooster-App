@@ -65,6 +65,16 @@ angular.module('rooster', [
 	          }
           })
 
+	      .state('app.singleLesson', {
+		      url: "/singleLesson:lessonID",
+		      views: {
+			      'menuContent': {
+				      templateUrl   : "views/lessons/singleLesson.html",
+				      controller: 'SingleLessonCtrl'
+			      }
+		      }
+	      })
+
 	      .state('app.absence', {
 		      url: "/absence",
 		      views: {

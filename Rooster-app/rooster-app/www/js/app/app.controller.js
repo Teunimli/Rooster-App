@@ -43,7 +43,7 @@ angular.module('rooster.app.controllers', [])
 
     })
 
-    .controller('RoosterCtrl', function($scope, $ionicSideMenuDelegate){
+    .controller('RoosterCtrl', function($scope, $ionicSideMenuDelegate, $state){
 
 	    $scope.title = "Rooster";
 	    $scope.lessonsGrid = [];
@@ -56,6 +56,7 @@ angular.module('rooster.app.controllers', [])
 	    do {
 		    times.push(hours + ':' + minutes);
 		    $scope.lessonsGrid.push({
+		    	"ID"            : 0,
 		    	"hour"          : hours,
 			    "minutes"       : minutes,
 			    "hasLesson"     : false,
@@ -103,6 +104,8 @@ angular.module('rooster.app.controllers', [])
 								}
 								if(!$scope.lessonsGrid[j].hasLesson) {
 									if ($scope.lessonsGrid[j].hour == startdate.getHours() && $scope.lessonsGrid[j].minutes == minutes) {
+										var lessonID = i;
+										$scope.lessonsGrid[j].ID = lessonID;
 										$scope.lessonsGrid[j].hasLesson = true;
 										$scope.lessonsGrid[j].title = lessonsCollection[i].title;
 										$scope.lessonsGrid[j].description = lessonsCollection[i].description;
@@ -117,6 +120,7 @@ angular.module('rooster.app.controllers', [])
 											for (var k = 1; k <= looptime; k++) {
 												var number = j + k;
 												$scope.lessonsGrid[number].hasLesson = true;
+												$scope.lessonsGrid[number].ID = lessonID;
 
 											}
 										} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
@@ -124,6 +128,7 @@ angular.module('rooster.app.controllers', [])
 											for (var k = 1; k <= looptime; k++) {
 												var number = j + k;
 												$scope.lessonsGrid[number].hasLesson = true;
+												$scope.lessonsGrid[number].ID = lessonID;
 
 											}
 										}
@@ -139,8 +144,22 @@ angular.module('rooster.app.controllers', [])
 		    }
 
 	    });
+	    
+	    $scope.goToSingleLesson = function (lessonID) {
+
+		    $state.go('app.singleLesson', {"lessonID": lessonID});
+
+	    }
 
     })
+
+	.controller('SingleLessonCtrl', function ($scope, $stateParams, $firebaseArray) {
+		var lessonID = $stateParams.lessonID;
+		var lesson = firebase.database().ref("lessons/" + lessonID);
+		lesson.on('value', function (data) {
+			$scope.lesson = data.val();
+		})
+	})
 
     .controller('LessonCtrl', function($scope){
 	    $scope.title = "Les toevoegen";

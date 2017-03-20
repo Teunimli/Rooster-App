@@ -59,3 +59,12 @@ h4{
     height: 106px;
     margin-top: 53px;
 }
+
+.bar.bar-dark {
+    background-image: none;
+    background-color: #8cb2ec;
+
+}
+.lesson_single-view .buttons {
+    margin-top: 25%;
+}
