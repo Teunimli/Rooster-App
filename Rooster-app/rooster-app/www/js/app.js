@@ -8,7 +8,7 @@ angular.module('rooster', [
     'firebase',
     'rooster.app.services',
     'rooster.app.controllers',
-    'ion-datetime-picker'
+    'ion-datetime-picker',
 ])
 
 .run(function($ionicPlatform) {
@@ -75,6 +75,16 @@ angular.module('rooster', [
 		      }
 	      })
 
+          .state('app.absense_add', {
+              url: "/absense_add",
+              views: {
+                  'menuContent': {
+                      templateUrl   : "views/absence/absense_add.html",
+                      controller: 'AbsenceCtrl'
+                  }
+              }
+          })
+
 	      .state('app.absence', {
 		      url: "/absence",
 		      views: {
@@ -84,6 +94,21 @@ angular.module('rooster', [
 			      }
 		      }
 	      })
+
+          .state('app.absencedetails', {
+              url: "/absencedetails/:absenceId",
+              views: {
+                  'menuContent': {
+                      templateUrl   : "views/absence/details.html",
+                      controller: 'AbsenceDetailCtrl'
+                  }
+              },
+              resolve: {
+                  post: function (AbsenceService, $stateParams) {
+                      return AbsenceService.getAbsencePost($stateParams.absenceId);
+                  }
+              }
+          })
       ;
       
       

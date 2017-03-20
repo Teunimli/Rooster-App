@@ -175,37 +175,87 @@ angular.module('rooster.app.controllers', [])
             });
         }
 
-        $scope.doLessonAdd = function (){
-            var begin_date = $scope.formData.begin_datetime.getTime();
-            var end_date = $scope.formData.end_datetime.getTime();
+        $scope.doLessonAdd = function () {
+			var begin_date = $scope.formData.begin_datetime.getTime();
+			var end_date = $scope.formData.end_datetime.getTime();
 
-            var lessons = fb.ref('lessons');
+			var lessons = fb.ref('lessons');
 
-            lessons.once('value', function(data){
+			lessons.once('value', function (data) {
 
-                var allLessons = data.val();
+				var allLessons = data.val();
 
-                if(allLessons == null){
-                    writeLessonData(0, $scope.formData.title, $scope.formData.description, begin_date, end_date);
-                }else{
-                    writeLessonData(allLessons.length, $scope.formData.title, $scope.formData.description, begin_date, end_date);
-                }
-
-
-            });
-
-
-
-
-        }
-
-
-
+				if (allLessons == null) {
+					writeLessonData(0, $scope.formData.title, $scope.formData.description, begin_date, end_date);
+				} else {
+					writeLessonData(allLessons.length, $scope.formData.title, $scope.formData.description, begin_date, end_date);
+				}
+			});
+		}
     })
 
 	.controller('AbsenceCtrl', function($scope){
+		var user = firebase.auth().currentUser;
+		var fb = firebase.database();
+		var absence = fb.ref('absence');
+		$scope.allAbsence = [];
+		$scope.formData = {};
+
+
+		absence.orderByChild('approved').equalTo(0).on("child_added", function(approvedData){
+
+			var absences = fb.ref("absence/" + approvedData.key);
+			absences.on('value', function (data) {
+				var alldata = data.val();
+				alldata.id = approvedData.key;
+				$scope.allAbsence.push(alldata);
+			})
+
+		});
+
+		function writeAbsenceData(userId, reson, description, begin_date, end_date, approved, email,displayname,viewed) {
+			fb.ref('absence/' + userId).set({
+				reson: reson,
+				description: description,
+				begin_date : begin_date,
+				end_date : end_date,
+				approved : approved,
+				email : email,
+				displayname: displayname,
+				viewed: viewed
+			});
+		}
+
+		$scope.doAbsenceAdd = function (){
+			var begin_date = $scope.formData.begin_datetime.getTime();
+			var end_date = $scope.formData.end_datetime.getTime();
+
+
+			absence.once('value', function(data){
+
+				var allAbsence = data.val();
+
+				if(allAbsence == null){
+					writeAbsenceData(0, $scope.formData.reson, $scope.formData.description, begin_date, end_date, 0, user.email, user.displayName,0);
+				}else{
+					writeAbsenceData(allAbsence.length, $scope.formData.reson, $scope.formData.description, begin_date, end_date, 0, user.email, user.displayName,0);
+				}
+
+			});
+
+		}
+
 
 	})
+
+	
+	.controller('AbsenceDetailCtrl',['$scope', '$stateParams', function($rootScope, post, $scope){
+		var user = firebase.auth().currentUser;
+		var id = post.absenceId;
+
+		
+
+	}])
 ;
 
 
