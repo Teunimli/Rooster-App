@@ -7,7 +7,7 @@
         <div class="row form-wrapper">
             <div class="col">
                 <form name="lessonadd_form" class="lessonFrom" ng-submit="doLessonAdd()" novalidate>
-                    <div class="form-fields-outer list list-inset">
+                    <ion-list class="form-fields-outer list list-inset">
                         <h4>Titel</h4>
                         <label class="item item-input">
                             <input type="text" placeholder="Titel" name="titel" ng-model="formData.title" required>
@@ -31,7 +31,18 @@
                                 {{formData.end_datetime| date: "dd-MM-yyyy H:mm:ss"}}
                             </div>
                         </ion-list>
+                        <ion-list>
 
+                            <label class="item item-input item-select">
+                                <div class="input-label">
+                                    Klas
+                                </div>
+                                <select name="class" ng-model="formData.class" required>
+                                    <option ng-repeat="class in classes" value="{{class.name}}">{{ class.name }}</option>
+                                </select>
+                            </label>
+
+                        </ion-list>
                         <button type="submit" class="login button button-block button-positive">
                             Toevoegen
                         </button>

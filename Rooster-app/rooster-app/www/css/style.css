@@ -68,3 +68,14 @@ h4{
 .lesson_single-view .buttons {
     margin-top: 25%;
 }
+
+.class_select {
+    width: 100%;
+}
+
+.rooster-view ion-content {
+    top: 92px;
+}
+ion-tabs .tab-item {
+    background: #6ca6ff !important;
+}

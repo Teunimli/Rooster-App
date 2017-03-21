@@ -29,7 +29,8 @@ angular.module('rooster', [
   });
 })
     
-    .config(function ($stateProvider, $urlRouterProvider) {
+    .config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
+    	$ionicConfigProvider.tabs.position('top');
       $stateProvider
 
 	      .state('app', {
@@ -46,7 +47,7 @@ angular.module('rooster', [
           })
 
           .state('app.rooster', {
-              url: "/rooster",
+              url: "/rooster:dayOfWeek",
               views: {
                   'menuContent': {
 	                  templateUrl   : "views/app/rooster.html",
@@ -71,6 +72,53 @@ angular.module('rooster', [
 			      'menuContent': {
 				      templateUrl   : "views/lessons/singleLesson.html",
 				      controller: 'SingleLessonCtrl'
+			      }
+		      }
+	      })
+	      .state('app.presence', {
+		      url: "/presence:lessonID",
+		      views: {
+			      'menuContent': {
+				      templateUrl   : "views/lessons/presence/presence.html",
+				      controller: 'PresenceCtrl'
+			      }
+		      }
+	      })
+	      .state('app.students', {
+		      url: "/students",
+		      views: {
+			      'menuContent': {
+				      templateUrl   : "views/students/studentsOverview.html",
+				      controller: 'StudentsCtrl'
+			      }
+		      }
+	      })
+	      .state('app.classes', {
+		      url: "/classes",
+		      views: {
+			      'menuContent': {
+				      templateUrl   : "views/classes/classes.html",
+				      controller: 'ClassesCtrl'
+			      }
+		      }
+	      })
+
+	      .state('app.class_add', {
+		      url: "/class_add",
+		      views: {
+			      'menuContent': {
+				      templateUrl   : "views/classes/class_add.html",
+				      controller: 'ClassesCtrl'
+			      }
+		      }
+	      })
+
+	      .state('app.student_add', {
+		      url: "/student_add",
+		      views: {
+			      'menuContent': {
+				      templateUrl   : "views/students/student_add.html",
+				      controller: 'StudentsCtrl'
 			      }
 		      }
 	      })
