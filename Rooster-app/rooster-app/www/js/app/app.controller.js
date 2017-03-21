@@ -54,13 +54,11 @@ angular.module('rooster.app.controllers', [])
 	    $scope.lessonsThursday = [];
 	    $scope.lessonsFriday = [];
 	    var curdate = new Date();
-	    console.log(curdate.getDay() -1);
+	    var date = curdate.getDay() -1;
 
-	    $scope.selectTab = function () {
-		    $ionicTabsDelegate.select(curdate.getDay() -1);
-	    };
-
-
+		$scope.$watch('$viewContentLoaded', function(){
+		    $ionicTabsDelegate.select(date);
+		});
 
 	    var times = [];
 	    var hours = 8;
