@@ -9,9 +9,8 @@ angular.module('rooster.app.services', [])
 			var absence = fb.ref('absence');
 
 			absence.orderByKey().once("child_added", function(approvedData){
-				var absences = fb.ref("absence/" + absenceId);
-				dfd.resolve(absences);
-
+                var absences = fb.ref("absence/" + absenceId);
+                dfd.resolve(absences);
 			});
 
 			return dfd.promise;

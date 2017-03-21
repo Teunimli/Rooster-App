@@ -150,11 +150,6 @@ angular.module('rooster', [
                       templateUrl   : "views/absence/details.html",
                       controller: 'AbsenceDetailCtrl'
                   }
-              },
-              resolve: {
-                  post: function (AbsenceService, $stateParams) {
-                      return AbsenceService.getAbsencePost($stateParams.absenceId);
-                  }
               }
           })
       ;

@@ -381,9 +381,6 @@ angular.module('rooster.app.controllers', [])
 							    }
 						    }
 					    }
-
-
-
 				    })
 			    });
 		    });
@@ -580,13 +577,12 @@ angular.module('rooster.app.controllers', [])
 		}
     })
 
-	.controller('AbsenceCtrl', function($scope){
+	.controller('AbsenceCtrl', function($scope, $state){
 		var user = firebase.auth().currentUser;
 		var fb = firebase.database();
 		var absence = fb.ref('absence');
 		$scope.allAbsence = [];
 		$scope.formData = {};
-
 
 		absence.orderByChild('approved').equalTo(0).on("child_added", function(approvedData){
 
@@ -596,7 +592,6 @@ angular.module('rooster.app.controllers', [])
 				alldata.id = approvedData.key;
 				$scope.allAbsence.push(alldata);
 			})
-
 		});
 
 		function writeAbsenceData(userId, reson, description, begin_date, end_date, approved, email,displayname,viewed) {
@@ -623,8 +618,10 @@ angular.module('rooster.app.controllers', [])
 
 				if(allAbsence == null){
 					writeAbsenceData(0, $scope.formData.reson, $scope.formData.description, begin_date, end_date, 0, user.email, user.displayName,0);
+					$state.go('app.absence');
 				}else{
 					writeAbsenceData(allAbsence.length, $scope.formData.reson, $scope.formData.description, begin_date, end_date, 0, user.email, user.displayName,0);
+					$state.go('app.absence');
 				}
 
 			});
@@ -634,14 +631,44 @@ angular.module('rooster.app.controllers', [])
 
 	})
 
+	.controller('AbsenceDetailCtrl', function($scope, $stateParams, $state){
+		var id = $stateParams.absenceId;
+		var absence = firebase.database().ref("absence/" + id);
+		absence.on('value', function (data) {
+			$scope.absence = data.val();
+		})
 
-	.controller('AbsenceDetailCtrl',['$scope', '$stateParams', function($rootScope, post, $scope){
-		var user = firebase.auth().currentUser;
-		var id = post.absenceId;
+		function updatePost(reson, description, begin_date, end_date, approved, email,displayname,viewed) {
+			// A post entry.
+			var postData = {
+				reson: reson,
+				description: description,
+				begin_date : begin_date,
+				end_date : end_date,
+				approved : approved,
+				email : email,
+				displayname: displayname,
+				viewed: viewed
+			};
 
+			// Write the new post's data simultaneously in the posts list and the user's post list.
+			var updates = {};
+			updates['/absence/' + id + '/'] = postData;
+			return firebase.database().ref().update(updates);
+		}
 
+		$scope.approved = function(){
+			updatePost($scope.absence.reson, $scope.absence.description,$scope.absence.begin_date, $scope.absence.end_date, 1, $scope.absence.email, $scope.absence.displayname, 1);
+			$state.go('app.absence');
+		}
 
-	}])
+		$scope.cancel = function(){
+			updatePost($scope.absence.reson, $scope.absence.description,$scope.absence.begin_date, $scope.absence.end_date, 0, $scope.absence.email, $scope.absence.displayname, 1);
+			$state.go('app.absence');
+		}
+
+	})
+
 ;
 
 
