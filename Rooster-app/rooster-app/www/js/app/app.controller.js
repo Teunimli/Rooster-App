@@ -634,36 +634,23 @@ angular.module('rooster.app.controllers', [])
 	.controller('AbsenceDetailCtrl', function($scope, $stateParams, $state){
 		var id = $stateParams.absenceId;
 		var absence = firebase.database().ref("absence/" + id);
-		absence.on('value', function (data) {
+		absence.once('value', function (data) {
 			$scope.absence = data.val();
 		})
 
-		function updatePost(reson, description, begin_date, end_date, approved, email,displayname,viewed) {
-			// A post entry.
-			var postData = {
-				reson: reson,
-				description: description,
-				begin_date : begin_date,
-				end_date : end_date,
-				approved : approved,
-				email : email,
-				displayname: displayname,
-				viewed: viewed
-			};
+		function updatePost(approved,viewed) {
 
-			// Write the new post's data simultaneously in the posts list and the user's post list.
-			var updates = {};
-			updates['/absence/' + id + '/'] = postData;
-			return firebase.database().ref().update(updates);
+			firebase.database().ref().child('/absence/' + id).update({ approved:  approved, viewed: viewed});
+
 		}
 
 		$scope.approved = function(){
-			updatePost($scope.absence.reson, $scope.absence.description,$scope.absence.begin_date, $scope.absence.end_date, 1, $scope.absence.email, $scope.absence.displayname, 1);
+			updatePost(1, 1);
 			$state.go('app.absence');
 		}
 
 		$scope.cancel = function(){
-			updatePost($scope.absence.reson, $scope.absence.description,$scope.absence.begin_date, $scope.absence.end_date, 0, $scope.absence.email, $scope.absence.displayname, 1);
+			updatePost(0, 1);
 			$state.go('app.absence');
 		}
 
