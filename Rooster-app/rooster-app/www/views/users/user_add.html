@@ -1,23 +1,23 @@
-<ion-view class="student_add-view">
+<ion-view class="user_add-view">
 	<ion-content>
 		<div class="bar bar-header bar-dark">
-			<h1 class="title">Student toevoegen</h1>
+			<h1 class="title">{{userType}} toevoegen</h1>
 		</div>
 
 		<div class="row form-wrapper">
 			<div class="col">
-				<form name="absenceadd_form" class="absenceFrom" ng-submit="doStudentAdd()" novalidate>
+				<form name="absenceadd_form" class="absenceFrom" ng-submit="doUserAdd()" novalidate>
 
 					<div class="form-fields-outer list list-inset">
-						<h4>Naam student</h4>
+						<h4>Naam {{userType}}</h4>
 						<label class="item item-input">
 							<input type="text" name="name" ng-model="formData.name" required>
 						</label>
-						<h4>Email student</h4>
+						<h4>Email {{userType}}</h4>
 						<label class="item item-input">
 							<input type="email" name="email" ng-model="formData.email" required>
 						</label>
-						<h4>Wachtwoord student</h4>
+						<h4>Wachtwoord {{userType}}</h4>
 						<label class="item item-input">
 							<input type="text" name="password" ng-model="formData.password" required>
 						</label>

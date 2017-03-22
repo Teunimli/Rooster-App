@@ -47,7 +47,7 @@ angular.module('rooster', [
           })
 
           .state('app.rooster', {
-              url: "/rooster:dayOfWeek",
+              url: "/rooster",
               views: {
                   'menuContent': {
 	                  templateUrl   : "views/app/rooster.html",
@@ -84,15 +84,27 @@ angular.module('rooster', [
 			      }
 		      }
 	      })
-	      .state('app.students', {
-		      url: "/students",
+
+	      .state('app.users', {
+		      url: "/users:userType",
 		      views: {
 			      'menuContent': {
-				      templateUrl   : "views/students/studentsOverview.html",
-				      controller: 'StudentsCtrl'
+				      templateUrl   : "views/users/users.html",
+				      controller: 'UserCtrl'
 			      }
 		      }
 	      })
+
+	      .state('app.user_add', {
+		      url: "/user_add:userType",
+		      views: {
+			      'menuContent': {
+				      templateUrl   : "views/users/user_add.html",
+				      controller: 'UserCtrl'
+			      }
+		      }
+	      })
+
 	      .state('app.classes', {
 		      url: "/classes",
 		      views: {
@@ -109,16 +121,6 @@ angular.module('rooster', [
 			      'menuContent': {
 				      templateUrl   : "views/classes/class_add.html",
 				      controller: 'ClassesCtrl'
-			      }
-		      }
-	      })
-
-	      .state('app.student_add', {
-		      url: "/student_add",
-		      views: {
-			      'menuContent': {
-				      templateUrl   : "views/students/student_add.html",
-				      controller: 'StudentsCtrl'
 			      }
 		      }
 	      })

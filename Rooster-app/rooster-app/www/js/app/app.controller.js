@@ -1,7 +1,153 @@
 angular.module('rooster.app.controllers', [])
 
-	.controller('AppCtrl', function($scope, $ionicModal, $state) {
+	.controller('AppCtrl', function($scope, $ionicModal, $state, $firebaseArray) {
 		$scope.logo = "img/logo.png";
+
+		var user = firebase.auth().currentUser;
+		if (user) {
+			var curemail = user.email;
+		} else {
+			$state.go('login');
+		}
+
+
+		var fb = firebase.database();
+		var users = fb.ref('users');
+		var role;
+		$scope.menucontent = [];
+
+
+		var fireRef = users.orderByChild('email').equalTo(curemail);
+		var curuser = $firebaseArray(fireRef);
+
+		curuser.$loaded()
+			.then(function () {
+				angular.forEach(curuser, function(user) {
+					role = user.role;
+					switch (role) {
+						case 'leerling':
+							$scope.menucontent = [
+								{
+									title: 'Rooster',
+									type: 'sref',
+									action: 'app.rooster'
+								},
+								{
+									title: 'Absentie',
+									type: 'sref',
+									action: 'app.absence'
+								},
+								{
+									title: 'Uitloggen',
+									type: 'click',
+									action: 'doLogOut()'
+								}
+							];
+							break;
+						case 'docent':
+							$scope.menucontent = [
+								{
+									title: 'Rooster',
+									type: 'sref',
+									action: 'app.rooster'
+								},
+								{
+									title: 'Absentie',
+									type: 'sref',
+									action: 'app.absence'
+								},
+								{
+									title: 'Uitloggen',
+									type: 'click',
+									action: 'doLogOut()'
+								}
+							];
+							break;
+						case 'roostermaker':
+							$scope.menucontent = [
+								{
+									title: 'Klassen',
+									type: 'sref',
+									action: 'app.classes'
+								},
+								{
+									title: 'Lessen',
+									type: 'sref',
+									action: ''
+								},
+								{
+									title: 'Lokalen',
+									type: 'click',
+									action: ''
+								},
+								{
+									title: 'Uitloggen',
+									type: 'click',
+									action: 'doLogOut()'
+								}
+							];
+							break;
+						case 'admin':
+							$scope.menucontent = [
+								{
+									title: 'Leerlingen',
+									type: 'click',
+									action: 'goToUsers(\'leerling\')'
+								},
+								{
+									title: 'Docenten',
+									type: 'click',
+									action: 'goToUsers(\'docent\')'
+								},
+								{
+									title: 'Roostermakers',
+									type: 'click',
+									action: 'goToUsers(\'roostermaker\')'
+								},
+								{
+									title: 'Admins',
+									type: 'click',
+									action: 'goToUsers(\'admin\')'
+								},
+								{
+									title: 'Klassen',
+									type: 'sref',
+									action: 'app.classes'
+								},
+								{
+									title: 'Lokalen',
+									type: 'sref',
+									action: ''
+								},
+								{
+									title: 'Uitloggen',
+									type: 'click',
+									action: 'doLogOut()'
+								}
+							];
+							break;
+						default:
+							$scope.menucontent = [
+								{
+									title: 'Rooster',
+									type: 'sref',
+									action: 'app.rooster'
+								},
+								{
+									title: 'Absentie',
+									type: 'sref',
+									action: 'app.absence'
+								},
+								{
+									title: 'Uitloggen',
+									type: 'click',
+									action: 'doLogOut()'
+								}
+							];
+							break;
+					}
+				})
+			});
 
 		$scope.doLogOut = function () {
 			firebase.auth().signOut().then(function() {
@@ -9,6 +155,10 @@ angular.module('rooster.app.controllers', [])
 			}, function(error) {
 				alert(error);
 			});
+		};
+
+		$scope.goToUsers = function (userType) {
+			$state.go('app.users', {userType: userType});
 		}
 	})
 
@@ -411,8 +561,10 @@ angular.module('rooster.app.controllers', [])
 
 	})
 
-	.controller('StudentsCtrl', function ($scope, $stateParams, $firebaseArray, $state) {
+	.controller('UserCtrl', function ($scope, $stateParams, $firebaseArray, $state) {
 		$scope.formData = {};
+		var userType = $stateParams.userType;
+		$scope.userType = userType;
 		var user = firebase.auth().currentUser;
 		if (user) {
 			var curemail = user.email;
@@ -420,14 +572,28 @@ angular.module('rooster.app.controllers', [])
 			$state.go('login');
 		}
 
+		$scope.addUser = function (userType) {
+			$state.go('app.user_add', {userType: userType});
+		};
+		console.log(userType);
 		var fb = firebase.database();
 		var users = fb.ref('users');
 
-		users.on('value', function (data) {
-			$scope.allUsers = data.val();
-		});
+		var selectedUsers = [];
+		users.orderByChild("role").equalTo(userType).on("child_added", function(snapshot) {
+			var userid = snapshot.key;
 
-		function writeStudentData(userId, email, name, role) {
+			var curuser = fb.ref("users/" + userid);
+
+			curuser.on('value', function (userdata) {
+				selectedUsers.push(userdata.val());
+			})
+
+		});
+		$scope.selectedUsers = selectedUsers;
+
+
+		function writeUserData(userId, email, name, role) {
 			fb.ref('users/' + userId).set({
 				email: email,
 				name: name,
@@ -436,7 +602,7 @@ angular.module('rooster.app.controllers', [])
 		}
 
 
-		$scope.doStudentAdd = function () {
+		$scope.doUserAdd = function () {
 
 			var users = fb.ref('users');
 			var hasAdded = false;
@@ -461,13 +627,13 @@ angular.module('rooster.app.controllers', [])
 							var allUsers = data.val();
 
 							if (allUsers == null) {
-								writeStudentData(0, $scope.formData.email, $scope.formData.name , 'leerling');
+								writeUserData(0, $scope.formData.email, $scope.formData.name , userType);
 							} else {
-								writeStudentData(allUsers.length, $scope.formData.email, $scope.formData.name , 'leerling');
+								writeUserData(allUsers.length, $scope.formData.email, $scope.formData.name , userType);
 							}
 
 						});
-						$state.go('app.students');
+						$state.go('app.users', {userType: userType});
 					}
 
 				} else {
