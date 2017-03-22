@@ -7,7 +7,7 @@
 	<ion-content>
 		<ion-list class="absence">
 			<ion-item ng-repeat="absence in allAbsence">
-				<div class="absenceContent" ui-sref="app.absencedetails({ absenceId: absence.id })">
+				<div class="absenceContent" ui-sref="app.absencedetails({ absenceId: absence.$id })">
 					<p><b>Naam: {{absence.displayname}}</b></p>
 					<p><b>Email: {{absence.email}}</b></p>
 					<p><b>Reden: {{absence.reson}}</b></p>
