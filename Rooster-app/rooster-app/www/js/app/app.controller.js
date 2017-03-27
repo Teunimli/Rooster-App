@@ -786,11 +786,20 @@ angular.module('rooster.app.controllers', [])
 			$state.go('login');
 		}
 
+
+
 		$scope.addUser = function (userType) {
 			$state.go('app.user_add', {userType: userType});
 		};
 		console.log(userType);
 		var fb = firebase.database();
+
+		var classes = fb.ref("classes");
+
+		classes.on('value', function (classdata) {
+			$scope.classes = classdata.val();
+		});
+
 		var users = fb.ref('users');
 
 		var selectedUsers = [];
@@ -807,12 +816,23 @@ angular.module('rooster.app.controllers', [])
 		$scope.selectedUsers = selectedUsers;
 
 
-		function writeUserData(userId, email, name, role) {
-			fb.ref('users/' + userId).set({
-				email: email,
-				name: name,
-				role : role
-			});
+		function writeUserData(userId, email, name, role, userClass) {
+
+			if(role == 'leerling') {
+				fb.ref('users/' + userId).set({
+					email: email,
+					name: name,
+					role : role,
+					class: userClass
+				});
+			} else {
+				fb.ref('users/' + userId).set({
+					email: email,
+					name: name,
+					role : role
+				});
+			}
+
 		}
 
 
@@ -841,9 +861,20 @@ angular.module('rooster.app.controllers', [])
 							var allUsers = data.val();
 
 							if (allUsers == null) {
-								writeUserData(0, $scope.formData.email, $scope.formData.name , userType);
+								if(userType == 'leerling') {
+									writeUserData(0, $scope.formData.email, $scope.formData.name , userType, $scope.formData.class);
+								} else {
+									writeUserData(0, $scope.formData.email, $scope.formData.name , userType, '');
+								}
+
 							} else {
-								writeUserData(allUsers.length, $scope.formData.email, $scope.formData.name , userType);
+								if(userType == 'leerling') {
+									writeUserData(allUsers.length, $scope.formData.email, $scope.formData.name , userType, $scope.formData.class);
+								} else {
+									writeUserData(0, $scope.formData.email, $scope.formData.name , userType, '');
+
+								}
+
 							}
 
 						});
