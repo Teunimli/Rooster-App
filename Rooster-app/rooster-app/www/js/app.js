@@ -46,6 +46,16 @@ angular.module('rooster', [
             controller: 'AuthCtrl'
           })
 
+		  .state('app.admin', {
+			  url: "/admin",
+			  views: {
+				  'menuContent': {
+					  templateUrl   : "views/app/admin.html",
+					  controller: 'AdminCtrl'
+				  }
+			  }
+		  })
+
           .state('app.rooster', {
               url: "/rooster",
               views: {
@@ -162,6 +172,16 @@ angular.module('rooster', [
                   'menuContent': {
                       templateUrl   : "views/absence/details.html",
                       controller: 'AbsenceDetailCtrl'
+                  }
+              }
+          })
+
+		  .state('app.classesdetails', {
+              url: "/classesdetails/:classesId",
+              views: {
+                  'menuContent': {
+                      templateUrl   : "views/classes/details.html",
+                      controller: 'ClassesDetailCtrl'
                   }
               }
           })

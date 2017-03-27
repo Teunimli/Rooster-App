@@ -166,10 +166,33 @@ angular.module('rooster.app.controllers', [])
 	    $scope.title = "Login";
         $scope.logo = "img/logo.png";
 	    $scope.data = {};
-	    firebase.auth().onAuthStateChanged(function(user) {
+		var fb = firebase.database();
+		var users = fb.ref('users');
+		firebase.auth().onAuthStateChanged(function(user) {
 		    if (user) {
 		    	if($state.current.name == 'login') {
-				    $state.go('app.rooster');
+
+					var fireRef = users.orderByChild('email').equalTo(user.email);
+					var curuser = $firebaseArray(fireRef);
+
+					curuser.$loaded()
+						.then(function () {
+							angular.forEach(curuser, function(user) {
+								role = user.role;
+								switch (role) {
+									case 'leerling':
+										$state.go('app.rooster');
+									break;
+									case 'admin':	
+										$state.go('app.admin');
+									break;
+									default:
+										$state.go('login');
+									break;
+
+								}
+						})
+					})
 			    }
 		    }
 	    });
@@ -195,383 +218,420 @@ angular.module('rooster.app.controllers', [])
 
     })
 
-    .controller('RoosterCtrl', function($scope, $ionicSideMenuDelegate, $state, $ionicTabsDelegate, $firebaseArray){
+	.controller('AdminCtrl', function($scope, $state, $firebaseArray) {
+		$scope.title = 'Admin overzicht';
 
-	    $scope.title = "Rooster";
-	    $scope.lessonsMonday = [];
-	    $scope.lessonsTuesday = [];
-	    $scope.lessonsWednesday = [];
-	    $scope.lessonsThursday = [];
-	    $scope.lessonsFriday = [];
-	    var curdate = new Date();
-	    var date = curdate.getDay() -1;
+		$scope.menucontent = [
+			{
+				title: 'Leerlingen',
+				type: 'click',
+				action: 'goToUsers(\'leerling\')'
+			},
+			{
+				title: 'Docenten',
+				type: 'click',
+				action: 'goToUsers(\'docent\')'
+			},
+			{
+				title: 'Roostermakers',
+				type: 'click',
+				action: 'goToUsers(\'roostermaker\')'
+			},
+			{
+				title: 'Admins',
+				type: 'click',
+				action: 'goToUsers(\'admin\')'
+			},
+			{
+				title: 'Klassen',
+				type: 'sref',
+				action: 'app.classes'
+			},
+			{
+				title: 'Lokalen',
+				type: 'sref',
+				action: ''
+			}
+		];
 
-		$scope.$watch('$viewContentLoaded', function(){
-		    $ionicTabsDelegate.select(date);
-		});
+		var fb = firebase.database();
+		var users = fb.ref('users');
+		var user = firebase.auth().currentUser;
 
-	    var times = [];
-	    var hours = 8;
-	    var minutes = '00';
-	    var user = firebase.auth().currentUser;
+		if (user) {
+			var curemail = user.email;
+		} else {
+			$state.go('login');
+		}
 
-	    $scope.goToDay = function (day) {
-		    $state.go('app.rooster', {dayOfWeek: day})
-	    };
-
-	    function getWeekNumber(d) {
-		    // Copy date so don't modify original
-		    d = new Date(+d);
-		    d.setHours(0,0,0,0);
-		    // Set to nearest Thursday: current date + 4 - current day number
-		    // Make Sunday's day number 7
-		    d.setDate(d.getDate() + 4 - (d.getDay()||7));
-		    // Get first day of year
-		    var yearStart = new Date(d.getFullYear(),0,1);
-		    // Calculate full weeks to nearest Thursday
-		    return Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
-	    }
-
-	    do {
-		    times.push(hours + ':' + minutes);
-		    $scope.lessonsMonday.push({
-		    	"ID"            : 0,
-		    	"hour"          : hours,
-			    "minutes"       : minutes,
-			    "hasLesson"     : false,
-			    "title"         : '',
-			    "description"   : ''
-		    });
-		    $scope.lessonsTuesday.push({
-			    "ID"            : 0,
-			    "hour"          : hours,
-			    "minutes"       : minutes,
-			    "hasLesson"     : false,
-			    "title"         : '',
-			    "description"   : ''
-		    });
-		    $scope.lessonsWednesday.push({
-			    "ID"            : 0,
-			    "hour"          : hours,
-			    "minutes"       : minutes,
-			    "hasLesson"     : false,
-			    "title"         : '',
-			    "description"   : ''
-		    });
-		    $scope.lessonsThursday.push({
-			    "ID"            : 0,
-			    "hour"          : hours,
-			    "minutes"       : minutes,
-			    "hasLesson"     : false,
-			    "title"         : '',
-			    "description"   : ''
-		    });
-		    $scope.lessonsFriday.push({
-			    "ID"            : 0,
-			    "hour"          : hours,
-			    "minutes"       : minutes,
-			    "hasLesson"     : false,
-			    "title"         : '',
-			    "description"   : ''
-		    });
-		    if(minutes == '00') {
-			    minutes = 0;
-		    }
-
-		    if(minutes < 40) {
-			    minutes += 20;
-
-		    } else {
-			    hours++;
-			    minutes = '00';
-		    }
-	    }
-	    while (hours <= 22);
-
-	    $scope.times = times;
+		var role;
 
 
-	    var fb = firebase.database();
-	    var users = fb.ref('users');
+		var fireRef = users.orderByChild('email').equalTo(curemail);
+		var curuser = $firebaseArray(fireRef);
 
-	    if (user) {
-		    var curemail = user.email;
-	    } else {
-		    $state.go('login');
-	    }
+		curuser.$loaded()
+			.then(function () {
+				angular.forEach(curuser, function (user) {
+					role = user.role;
 
-	    var role;
-
-
-	    var fireRef = users.orderByChild('email').equalTo(curemail);
-	    var curuser = $firebaseArray(fireRef);
-
-	    curuser.$loaded()
-		    .then(function () {
-			    angular.forEach(curuser, function (user) {
-				    role = user.role;
-
-				    switch (role) {
-					    case 'leerling':
-					    	$scope.canAdd = false;
-						    break;
-					    case 'docent':
-						    $scope.canAdd = false;
-						    break;
-					    case 'roostermaker':
-						    $scope.canAdd = true;
-						    break;
-					    case 'admin':
-						    $scope.canAdd = true;
-						    break;
-					    default:
-						    $scope.canAdd = false;
-					    	break;
-				    }
-			    })
-		    });
-
-
-	    users.orderByChild("email").equalTo(user.email).on("child_added", function(usersid) {
-		    var userid = usersid.key;
-		    var tuser = fb.ref("users/" + userid);
-		    tuser.on('value', function (userdata) {
-			    var currentclass = userdata.val().class;
-
-				var lessons = fb.ref('lessons');
-			    var fireRef = lessons.orderByChild("class").equalTo(currentclass);
-			    var allLessons = $firebaseArray(fireRef);
-
-				allLessons.$loaded()
-					.then(function(){
-						angular.forEach(allLessons, function(lesson) {
-
-					var startdate = new Date( lesson.begin_date );
-					var enddate = new Date( lesson.end_date );
-					if(curdate.getFullYear() === startdate.getFullYear()) {
-						if (curdate.getMonth() === startdate.getMonth()) {
-							if (getWeekNumber(curdate) === getWeekNumber(startdate)) {
-								switch (startdate.getDay()) {
-									case 1:
-										for (var j = 0; j < $scope.lessonsMonday.length; j++) {
-											if (startdate.getMinutes() == 0) {
-												var minutes = '00';
-											} else {
-												var minutes = startdate.getMinutes();
-											}
-											if (!$scope.lessonsMonday[j].hasLesson) {
-												if ($scope.lessonsMonday[j].hour == startdate.getHours() && $scope.lessonsMonday[j].minutes == minutes) {
-													$scope.lessonsMonday[j].ID = lesson.$id;
-													$scope.lessonsMonday[j].hasLesson = true;
-													$scope.lessonsMonday[j].title = lesson.title;
-													$scope.lessonsMonday[j].description = lesson.description;
-
-													if (enddate.getHours() - startdate.getHours() > 0) {
-														var looptime = 0;
-														if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-															looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														}
-														looptime += (enddate.getHours() - startdate.getHours()) * 3;
-
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsMonday[number].hasLesson = true;
-															$scope.lessonsMonday[number].ID = lesson.$id;
-
-														}
-													} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-														var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsMonday[number].hasLesson = true;
-															$scope.lessonsMonday[number].ID = lesson.$id;
-
-														}
-													}
-
-												}
-											}
-
-										}
-										break;
-									case 2:
-										for (var j = 0; j < $scope.lessonsTuesday.length; j++) {
-											if (startdate.getMinutes() == 0) {
-												var minutes = '00';
-											} else {
-												var minutes = startdate.getMinutes();
-											}
-											if (!$scope.lessonsTuesday[j].hasLesson) {
-												if ($scope.lessonsTuesday[j].hour == startdate.getHours() && $scope.lessonsTuesday[j].minutes == minutes) {
-													$scope.lessonsTuesday[j].ID = lesson.$id;
-													$scope.lessonsTuesday[j].hasLesson = true;
-													$scope.lessonsTuesday[j].title = lesson.title;
-													$scope.lessonsTuesday[j].description = lesson.description;
-
-													if (enddate.getHours() - startdate.getHours() > 0) {
-														var looptime = 0;
-														if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-															looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														}
-														looptime += (enddate.getHours() - startdate.getHours()) * 3;
-
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsTuesday[number].hasLesson = true;
-															$scope.lessonsTuesday[number].ID = lesson.$id;
-
-														}
-													} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-														var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsTuesday[number].hasLesson = true;
-															$scope.lessonsTuesday[number].ID = lesson.$id;
-
-														}
-													}
-
-												}
-											}
-
-										}
-										break;
-									case 3:
-										for (var j = 0; j < $scope.lessonsWednesday.length; j++) {
-											if (startdate.getMinutes() == 0) {
-												var minutes = '00';
-											} else {
-												var minutes = startdate.getMinutes();
-											}
-											if (!$scope.lessonsWednesday[j].hasLesson) {
-												if ($scope.lessonsWednesday[j].hour == startdate.getHours() && $scope.lessonsWednesday[j].minutes == minutes) {
-													$scope.lessonsWednesday[j].ID = lesson.$id;
-													$scope.lessonsWednesday[j].hasLesson = true;
-													$scope.lessonsWednesday[j].title = lesson.title;
-													$scope.lessonsWednesday[j].description = lesson.description;
-
-													if (enddate.getHours() - startdate.getHours() > 0) {
-														var looptime = 0;
-														if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-															looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														}
-														looptime += (enddate.getHours() - startdate.getHours()) * 3;
-
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsWednesday[number].hasLesson = true;
-															$scope.lessonsWednesday[number].ID = lesson.$id;
-
-														}
-													} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-														var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsWednesday[number].hasLesson = true;
-															$scope.lessonsWednesday[number].ID = lesson.$id;
-
-														}
-													}
-
-												}
-											}
-
-										}
-										break;
-									case 4:
-										for (var j = 0; j < $scope.lessonsThursday.length; j++) {
-											if (startdate.getMinutes() == 0) {
-												var minutes = '00';
-											} else {
-												var minutes = startdate.getMinutes();
-											}
-											if (!$scope.lessonsThursday[j].hasLesson) {
-												if ($scope.lessonsThursday[j].hour == startdate.getHours() && $scope.lessonsThursday[j].minutes == minutes) {
-													$scope.lessonsThursday[j].ID = lesson.$id;
-													$scope.lessonsThursday[j].hasLesson = true;
-													$scope.lessonsThursday[j].title = lesson.title;
-													$scope.lessonsThursday[j].description = lesson.description;
-
-													if (enddate.getHours() - startdate.getHours() > 0) {
-														var looptime = 0;
-														if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-															looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														}
-														looptime += (enddate.getHours() - startdate.getHours()) * 3;
-
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsThursday[number].hasLesson = true;
-															$scope.lessonsThursday[number].ID = lesson.$id;
-
-														}
-													} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-														var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsThursday[number].hasLesson = true;
-															$scope.lessonsThursday[number].ID = lesson.$id;
-
-														}
-													}
-
-												}
-											}
-
-										}
-										break;
-									case 5:
-										for (var j = 0; j < $scope.lessonsFriday.length; j++) {
-											if (startdate.getMinutes() == 0) {
-												var minutes = '00';
-											} else {
-												var minutes = startdate.getMinutes();
-											}
-											if (!$scope.lessonsFriday[j].hasLesson) {
-												if ($scope.lessonsFriday[j].hour == startdate.getHours() && $scope.lessonsFriday[j].minutes == minutes) {
-													$scope.lessonsFriday[j].ID = lesson.$id;
-													$scope.lessonsFriday[j].hasLesson = true;
-													$scope.lessonsFriday[j].title = lesson.title;
-													$scope.lessonsFriday[j].description = lesson.description;
-
-													if (enddate.getHours() - startdate.getHours() > 0) {
-														var looptime = 0;
-														if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-															looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														}
-														looptime += (enddate.getHours() - startdate.getHours()) * 3;
-
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsFriday[number].hasLesson = true;
-															$scope.lessonsFriday[number].ID = lesson.$id;
-
-														}
-													} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
-														var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
-														for (var k = 1; k <= looptime; k++) {
-															var number = j + k;
-															$scope.lessonsFriday[number].hasLesson = true;
-															$scope.lessonsFriday[number].ID = lesson.$id;
-
-														}
-													}
-
-												}
-											}
-
-										}
-										break;
-								}
-							}
-						}
+					switch (role) {
+						case 'leerling':
+							$scope.canAdd = false;
+							break;
+						case 'docent':
+							$scope.canAdd = false;
+							break;
+						case 'roostermaker':
+							$scope.canAdd = true;
+							break;
+						case 'admin':
+							$scope.canAdd = true;
+							break;
+						default:
+							$scope.canAdd = false;
+							break;
 					}
-					})
+				})
+			})
+	})
+
+	.controller('RoosterCtrl', function($scope, $ionicSideMenuDelegate, $state, $ionicTabsDelegate, $firebaseArray){
+		var fb = firebase.database();
+		var users = fb.ref('users');
+
+			$scope.title = "Rooster";
+			$scope.lessonsMonday = [];
+			$scope.lessonsTuesday = [];
+			$scope.lessonsWednesday = [];
+			$scope.lessonsThursday = [];
+			$scope.lessonsFriday = [];
+			var curdate = new Date();
+			var date = curdate.getDay() - 1;
+	
+			$scope.$watch('$viewContentLoaded', function () {
+				$ionicTabsDelegate.select(date);
+			});
+	
+			var times = [];
+			var hours = 8;
+			var minutes = '00';
+			var user = firebase.auth().currentUser;
+	
+			$scope.goToDay = function (day) {
+				$state.go('app.rooster', {dayOfWeek: day})
+			};
+	
+			function getWeekNumber(d) {
+				// Copy date so don't modify original
+				d = new Date(+d);
+				d.setHours(0, 0, 0, 0);
+				// Set to nearest Thursday: current date + 4 - current day number
+				// Make Sunday's day number 7
+				d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+				// Get first day of year
+				var yearStart = new Date(d.getFullYear(), 0, 1);
+				// Calculate full weeks to nearest Thursday
+				return Math.ceil(( ( (d - yearStart) / 86400000) + 1) / 7);
+			}
+	
+			do {
+				times.push(hours + ':' + minutes);
+				$scope.lessonsMonday.push({
+					"ID": 0,
+					"hour": hours,
+					"minutes": minutes,
+					"hasLesson": false,
+					"title": '',
+					"description": ''
 				});
-		    });
-	    });
-
-
+				$scope.lessonsTuesday.push({
+					"ID": 0,
+					"hour": hours,
+					"minutes": minutes,
+					"hasLesson": false,
+					"title": '',
+					"description": ''
+				});
+				$scope.lessonsWednesday.push({
+					"ID": 0,
+					"hour": hours,
+					"minutes": minutes,
+					"hasLesson": false,
+					"title": '',
+					"description": ''
+				});
+				$scope.lessonsThursday.push({
+					"ID": 0,
+					"hour": hours,
+					"minutes": minutes,
+					"hasLesson": false,
+					"title": '',
+					"description": ''
+				});
+				$scope.lessonsFriday.push({
+					"ID": 0,
+					"hour": hours,
+					"minutes": minutes,
+					"hasLesson": false,
+					"title": '',
+					"description": ''
+				});
+				if (minutes == '00') {
+					minutes = 0;
+				}
+	
+				if (minutes < 40) {
+					minutes += 20;
+	
+				} else {
+					hours++;
+					minutes = '00';
+				}
+			}
+			while (hours <= 22);
+	
+			$scope.times = times;
+	
+	
+			users.orderByChild("email").equalTo(user.email).on("child_added", function (usersid) {
+				var userid = usersid.key;
+				var tuser = fb.ref("users/" + userid);
+				tuser.on('value', function (userdata) {
+					var currentclass = userdata.val().class;
+	
+					var lessons = fb.ref('lessons');
+					var fireRef = lessons.orderByChild("class").equalTo(currentclass);
+					var allLessons = $firebaseArray(fireRef);
+	
+					allLessons.$loaded()
+						.then(function () {
+							angular.forEach(allLessons, function (lesson) {
+	
+								var startdate = new Date(lesson.begin_date);
+								var enddate = new Date(lesson.end_date);
+								if (curdate.getFullYear() === startdate.getFullYear()) {
+									if (curdate.getMonth() === startdate.getMonth()) {
+										if (getWeekNumber(curdate) === getWeekNumber(startdate)) {
+											switch (startdate.getDay()) {
+												case 1:
+													for (var j = 0; j < $scope.lessonsMonday.length; j++) {
+														if (startdate.getMinutes() == 0) {
+															var minutes = '00';
+														} else {
+															var minutes = startdate.getMinutes();
+														}
+														if (!$scope.lessonsMonday[j].hasLesson) {
+															if ($scope.lessonsMonday[j].hour == startdate.getHours() && $scope.lessonsMonday[j].minutes == minutes) {
+																$scope.lessonsMonday[j].ID = lesson.$id;
+																$scope.lessonsMonday[j].hasLesson = true;
+																$scope.lessonsMonday[j].title = lesson.title;
+																$scope.lessonsMonday[j].description = lesson.description;
+	
+																if (enddate.getHours() - startdate.getHours() > 0) {
+																	var looptime = 0;
+																	if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																		looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	}
+																	looptime += (enddate.getHours() - startdate.getHours()) * 3;
+	
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsMonday[number].hasLesson = true;
+																		$scope.lessonsMonday[number].ID = lesson.$id;
+	
+																	}
+																} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																	var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsMonday[number].hasLesson = true;
+																		$scope.lessonsMonday[number].ID = lesson.$id;
+	
+																	}
+																}
+	
+															}
+														}
+	
+													}
+													break;
+												case 2:
+													for (var j = 0; j < $scope.lessonsTuesday.length; j++) {
+														if (startdate.getMinutes() == 0) {
+															var minutes = '00';
+														} else {
+															var minutes = startdate.getMinutes();
+														}
+														if (!$scope.lessonsTuesday[j].hasLesson) {
+															if ($scope.lessonsTuesday[j].hour == startdate.getHours() && $scope.lessonsTuesday[j].minutes == minutes) {
+																$scope.lessonsTuesday[j].ID = lesson.$id;
+																$scope.lessonsTuesday[j].hasLesson = true;
+																$scope.lessonsTuesday[j].title = lesson.title;
+																$scope.lessonsTuesday[j].description = lesson.description;
+	
+																if (enddate.getHours() - startdate.getHours() > 0) {
+																	var looptime = 0;
+																	if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																		looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	}
+																	looptime += (enddate.getHours() - startdate.getHours()) * 3;
+	
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsTuesday[number].hasLesson = true;
+																		$scope.lessonsTuesday[number].ID = lesson.$id;
+	
+																	}
+																} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																	var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsTuesday[number].hasLesson = true;
+																		$scope.lessonsTuesday[number].ID = lesson.$id;
+	
+																	}
+																}
+	
+															}
+														}
+	
+													}
+													break;
+												case 3:
+													for (var j = 0; j < $scope.lessonsWednesday.length; j++) {
+														if (startdate.getMinutes() == 0) {
+															var minutes = '00';
+														} else {
+															var minutes = startdate.getMinutes();
+														}
+														if (!$scope.lessonsWednesday[j].hasLesson) {
+															if ($scope.lessonsWednesday[j].hour == startdate.getHours() && $scope.lessonsWednesday[j].minutes == minutes) {
+																$scope.lessonsWednesday[j].ID = lesson.$id;
+																$scope.lessonsWednesday[j].hasLesson = true;
+																$scope.lessonsWednesday[j].title = lesson.title;
+																$scope.lessonsWednesday[j].description = lesson.description;
+	
+																if (enddate.getHours() - startdate.getHours() > 0) {
+																	var looptime = 0;
+																	if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																		looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	}
+																	looptime += (enddate.getHours() - startdate.getHours()) * 3;
+	
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsWednesday[number].hasLesson = true;
+																		$scope.lessonsWednesday[number].ID = lesson.$id;
+	
+																	}
+																} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																	var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsWednesday[number].hasLesson = true;
+																		$scope.lessonsWednesday[number].ID = lesson.$id;
+	
+																	}
+																}
+	
+															}
+														}
+	
+													}
+													break;
+												case 4:
+													for (var j = 0; j < $scope.lessonsThursday.length; j++) {
+														if (startdate.getMinutes() == 0) {
+															var minutes = '00';
+														} else {
+															var minutes = startdate.getMinutes();
+														}
+														if (!$scope.lessonsThursday[j].hasLesson) {
+															if ($scope.lessonsThursday[j].hour == startdate.getHours() && $scope.lessonsThursday[j].minutes == minutes) {
+																$scope.lessonsThursday[j].ID = lesson.$id;
+																$scope.lessonsThursday[j].hasLesson = true;
+																$scope.lessonsThursday[j].title = lesson.title;
+																$scope.lessonsThursday[j].description = lesson.description;
+	
+																if (enddate.getHours() - startdate.getHours() > 0) {
+																	var looptime = 0;
+																	if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																		looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	}
+																	looptime += (enddate.getHours() - startdate.getHours()) * 3;
+	
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsThursday[number].hasLesson = true;
+																		$scope.lessonsThursday[number].ID = lesson.$id;
+	
+																	}
+																} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																	var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsThursday[number].hasLesson = true;
+																		$scope.lessonsThursday[number].ID = lesson.$id;
+	
+																	}
+																}
+	
+															}
+														}
+	
+													}
+													break;
+												case 5:
+													for (var j = 0; j < $scope.lessonsFriday.length; j++) {
+														if (startdate.getMinutes() == 0) {
+															var minutes = '00';
+														} else {
+															var minutes = startdate.getMinutes();
+														}
+														if (!$scope.lessonsFriday[j].hasLesson) {
+															if ($scope.lessonsFriday[j].hour == startdate.getHours() && $scope.lessonsFriday[j].minutes == minutes) {
+																$scope.lessonsFriday[j].ID = lesson.$id;
+																$scope.lessonsFriday[j].hasLesson = true;
+																$scope.lessonsFriday[j].title = lesson.title;
+																$scope.lessonsFriday[j].description = lesson.description;
+	
+																if (enddate.getHours() - startdate.getHours() > 0) {
+																	var looptime = 0;
+																	if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																		looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	}
+																	looptime += (enddate.getHours() - startdate.getHours()) * 3;
+	
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsFriday[number].hasLesson = true;
+																		$scope.lessonsFriday[number].ID = lesson.$id;
+	
+																	}
+																} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																	var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+																	for (var k = 1; k <= looptime; k++) {
+																		var number = j + k;
+																		$scope.lessonsFriday[number].hasLesson = true;
+																		$scope.lessonsFriday[number].ID = lesson.$id;
+	
+																	}
+																}
+	
+															}
+														}
+	
+													}
+													break;
+											}
+										}
+									}
+								}
+							})
+						});
+				});
+			});
 
 	    $scope.goToSingleLesson = function (lessonID) {
 
@@ -813,9 +873,8 @@ angular.module('rooster.app.controllers', [])
 
 		var classes = fb.ref('classes');
 
-		classes.on('value', function (data) {
-			$scope.classes = data.val();
-		});
+		var fireRef = classes.orderByChild('name');
+		$scope.classes = $firebaseArray(fireRef);
 
 		var users = fb.ref('users');
 
@@ -875,6 +934,7 @@ angular.module('rooster.app.controllers', [])
             });
             $state.go('app.rooster');
         }
+
 
         $scope.doLessonAdd = function () {
 			var begin_date = $scope.formData.begin_datetime.getTime();
@@ -1042,6 +1102,363 @@ angular.module('rooster.app.controllers', [])
 		}
 
 	})
+
+	.controller('ClassesDetailCtrl', function($scope, $stateParams, $ionicSideMenuDelegate, $state, $ionicTabsDelegate,$firebaseArray){
+		var fb = firebase.database();
+		var id = $stateParams.classesId;
+		var clas = fb.ref("classes/" + id);
+		var classes = fb.ref('classes');
+
+		clas.once('value', function (data) {
+			$scope.clas = data.val();
+		 	var currentclass = data.val();
+			$scope.title = currentclass.name;
+
+		$scope.lessonsMonday = [];
+		$scope.lessonsTuesday = [];
+		$scope.lessonsWednesday = [];
+		$scope.lessonsThursday = [];
+		$scope.lessonsFriday = [];
+		var curdate = new Date();
+		var date = curdate.getDay() - 1;
+
+		$scope.$watch('$viewContentLoaded', function () {
+			$ionicTabsDelegate.select(date);
+		});
+
+		var times = [];
+		var hours = 8;
+		var minutes = '00';
+		var user = firebase.auth().currentUser;
+
+		$scope.goToDay = function (day) {
+			$state.go('app.AbsenceDetailCtrl', {dayOfWeek: day})
+		};
+
+		function getWeekNumber(d) {
+			// Copy date so don't modify original
+			d = new Date(+d);
+			d.setHours(0, 0, 0, 0);
+			// Set to nearest Thursday: current date + 4 - current day number
+			// Make Sunday's day number 7
+			d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+			// Get first day of year
+			var yearStart = new Date(d.getFullYear(), 0, 1);
+			// Calculate full weeks to nearest Thursday
+			return Math.ceil(( ( (d - yearStart) / 86400000) + 1) / 7);
+		}
+
+		do {
+			times.push(hours + ':' + minutes);
+			$scope.lessonsMonday.push({
+				"ID": 0,
+				"hour": hours,
+				"minutes": minutes,
+				"hasLesson": false,
+				"title": '',
+				"description": ''
+			});
+			$scope.lessonsTuesday.push({
+				"ID": 0,
+				"hour": hours,
+				"minutes": minutes,
+				"hasLesson": false,
+				"title": '',
+				"description": ''
+			});
+			$scope.lessonsWednesday.push({
+				"ID": 0,
+				"hour": hours,
+				"minutes": minutes,
+				"hasLesson": false,
+				"title": '',
+				"description": ''
+			});
+			$scope.lessonsThursday.push({
+				"ID": 0,
+				"hour": hours,
+				"minutes": minutes,
+				"hasLesson": false,
+				"title": '',
+				"description": ''
+			});
+			$scope.lessonsFriday.push({
+				"ID": 0,
+				"hour": hours,
+				"minutes": minutes,
+				"hasLesson": false,
+				"title": '',
+				"description": ''
+			});
+			if (minutes == '00') {
+				minutes = 0;
+			}
+
+			if (minutes < 40) {
+				minutes += 20;
+
+			} else {
+				hours++;
+				minutes = '00';
+			}
+		}
+		while (hours <= 22);
+
+		$scope.times = times;
+
+
+			var lessons = fb.ref('lessons');
+			var fireRef = lessons.orderByChild("class").equalTo(currentclass.name);
+			var allLessons = $firebaseArray(fireRef);
+
+			allLessons.$loaded()
+				.then(function () {
+					angular.forEach(allLessons, function (lesson) {
+
+						var startdate = new Date(lesson.begin_date);
+						var enddate = new Date(lesson.end_date);
+						if (curdate.getFullYear() === startdate.getFullYear()) {
+							if (curdate.getMonth() === startdate.getMonth()) {
+								if (getWeekNumber(curdate) === getWeekNumber(startdate)) {
+									switch (startdate.getDay()) {
+										case 1:
+											for (var j = 0; j < $scope.lessonsMonday.length; j++) {
+												if (startdate.getMinutes() == 0) {
+													var minutes = '00';
+												} else {
+													var minutes = startdate.getMinutes();
+												}
+												if (!$scope.lessonsMonday[j].hasLesson) {
+													if ($scope.lessonsMonday[j].hour == startdate.getHours() && $scope.lessonsMonday[j].minutes == minutes) {
+														$scope.lessonsMonday[j].ID = lesson.$id;
+														$scope.lessonsMonday[j].hasLesson = true;
+														$scope.lessonsMonday[j].title = lesson.title;
+														$scope.lessonsMonday[j].description = lesson.description;
+
+														if (enddate.getHours() - startdate.getHours() > 0) {
+															var looptime = 0;
+															if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															}
+															looptime += (enddate.getHours() - startdate.getHours()) * 3;
+
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsMonday[number].hasLesson = true;
+																$scope.lessonsMonday[number].ID = lesson.$id;
+
+															}
+														} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+															var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsMonday[number].hasLesson = true;
+																$scope.lessonsMonday[number].ID = lesson.$id;
+
+															}
+														}
+
+													}
+												}
+
+											}
+											break;
+										case 2:
+											for (var j = 0; j < $scope.lessonsTuesday.length; j++) {
+												if (startdate.getMinutes() == 0) {
+													var minutes = '00';
+												} else {
+													var minutes = startdate.getMinutes();
+												}
+												if (!$scope.lessonsTuesday[j].hasLesson) {
+													if ($scope.lessonsTuesday[j].hour == startdate.getHours() && $scope.lessonsTuesday[j].minutes == minutes) {
+														$scope.lessonsTuesday[j].ID = lesson.$id;
+														$scope.lessonsTuesday[j].hasLesson = true;
+														$scope.lessonsTuesday[j].title = lesson.title;
+														$scope.lessonsTuesday[j].description = lesson.description;
+
+														if (enddate.getHours() - startdate.getHours() > 0) {
+															var looptime = 0;
+															if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															}
+															looptime += (enddate.getHours() - startdate.getHours()) * 3;
+
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsTuesday[number].hasLesson = true;
+																$scope.lessonsTuesday[number].ID = lesson.$id;
+
+															}
+														} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+															var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsTuesday[number].hasLesson = true;
+																$scope.lessonsTuesday[number].ID = lesson.$id;
+
+															}
+														}
+
+													}
+												}
+
+											}
+											break;
+										case 3:
+											for (var j = 0; j < $scope.lessonsWednesday.length; j++) {
+												if (startdate.getMinutes() == 0) {
+													var minutes = '00';
+												} else {
+													var minutes = startdate.getMinutes();
+												}
+												if (!$scope.lessonsWednesday[j].hasLesson) {
+													if ($scope.lessonsWednesday[j].hour == startdate.getHours() && $scope.lessonsWednesday[j].minutes == minutes) {
+														$scope.lessonsWednesday[j].ID = lesson.$id;
+														$scope.lessonsWednesday[j].hasLesson = true;
+														$scope.lessonsWednesday[j].title = lesson.title;
+														$scope.lessonsWednesday[j].description = lesson.description;
+
+														if (enddate.getHours() - startdate.getHours() > 0) {
+															var looptime = 0;
+															if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															}
+															looptime += (enddate.getHours() - startdate.getHours()) * 3;
+
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsWednesday[number].hasLesson = true;
+																$scope.lessonsWednesday[number].ID = lesson.$id;
+
+															}
+														} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+															var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsWednesday[number].hasLesson = true;
+																$scope.lessonsWednesday[number].ID = lesson.$id;
+
+															}
+														}
+
+													}
+												}
+
+											}
+											break;
+										case 4:
+											for (var j = 0; j < $scope.lessonsThursday.length; j++) {
+												if (startdate.getMinutes() == 0) {
+													var minutes = '00';
+												} else {
+													var minutes = startdate.getMinutes();
+												}
+												if (!$scope.lessonsThursday[j].hasLesson) {
+													if ($scope.lessonsThursday[j].hour == startdate.getHours() && $scope.lessonsThursday[j].minutes == minutes) {
+														$scope.lessonsThursday[j].ID = lesson.$id;
+														$scope.lessonsThursday[j].hasLesson = true;
+														$scope.lessonsThursday[j].title = lesson.title;
+														$scope.lessonsThursday[j].description = lesson.description;
+
+														if (enddate.getHours() - startdate.getHours() > 0) {
+															var looptime = 0;
+															if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															}
+															looptime += (enddate.getHours() - startdate.getHours()) * 3;
+
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsThursday[number].hasLesson = true;
+																$scope.lessonsThursday[number].ID = lesson.$id;
+
+															}
+														} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+															var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsThursday[number].hasLesson = true;
+																$scope.lessonsThursday[number].ID = lesson.$id;
+
+															}
+														}
+
+													}
+												}
+
+											}
+											break;
+										case 5:
+											for (var j = 0; j < $scope.lessonsFriday.length; j++) {
+												if (startdate.getMinutes() == 0) {
+													var minutes = '00';
+												} else {
+													var minutes = startdate.getMinutes();
+												}
+												if (!$scope.lessonsFriday[j].hasLesson) {
+													if ($scope.lessonsFriday[j].hour == startdate.getHours() && $scope.lessonsFriday[j].minutes == minutes) {
+														$scope.lessonsFriday[j].ID = lesson.$id;
+														$scope.lessonsFriday[j].hasLesson = true;
+														$scope.lessonsFriday[j].title = lesson.title;
+														$scope.lessonsFriday[j].description = lesson.description;
+
+														if (enddate.getHours() - startdate.getHours() > 0) {
+															var looptime = 0;
+															if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+																looptime += (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															}
+															looptime += (enddate.getHours() - startdate.getHours()) * 3;
+
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsFriday[number].hasLesson = true;
+																$scope.lessonsFriday[number].ID = lesson.$id;
+
+															}
+														} else if (enddate.getMinutes() - startdate.getMinutes() > 0) {
+															var looptime = (enddate.getMinutes() - startdate.getMinutes()) / 20;
+															for (var k = 1; k <= looptime; k++) {
+																var number = j + k;
+																$scope.lessonsFriday[number].hasLesson = true;
+																$scope.lessonsFriday[number].ID = lesson.$id;
+
+															}
+														}
+
+													}
+												}
+
+											}
+											break;
+									}
+								}
+							}
+						}
+					})
+				});
+		});
+
+
+		$scope.goToSingleLesson = function (lessonID) {
+
+			$state.go('app.singleLesson', {"lessonID": lessonID});
+
+		};
+
+		clas.once('value', function (data) {
+			$scope.clas = data.val();
+			var currentclass = data.val();
+
+			var users = fb.ref('users');
+			var fireRef = users.orderByChild("class").equalTo(currentclass.name);
+			$scope.allUsers = $firebaseArray(fireRef);
+
+		});
+
+
+	})
+
 
 ;
 
