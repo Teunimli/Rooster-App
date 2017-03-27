@@ -75,6 +75,17 @@ angular.module('rooster', [
 			      }
 		      }
 	      })
+
+	      .state('app.lesson_change', {
+		      url: "/changeLesson:lessonID",
+		      views: {
+			      'menuContent': {
+				      templateUrl   : "views/lessons/lesson_change.html",
+				      controller: 'SingleLessonCtrl'
+			      }
+		      }
+	      })
+
 	      .state('app.presence', {
 		      url: "/presence:lessonID",
 		      views: {

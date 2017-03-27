@@ -293,6 +293,45 @@ angular.module('rooster.app.controllers', [])
 
 	    var fb = firebase.database();
 	    var users = fb.ref('users');
+
+	    if (user) {
+		    var curemail = user.email;
+	    } else {
+		    $state.go('login');
+	    }
+
+	    var role;
+
+
+	    var fireRef = users.orderByChild('email').equalTo(curemail);
+	    var curuser = $firebaseArray(fireRef);
+
+	    curuser.$loaded()
+		    .then(function () {
+			    angular.forEach(curuser, function (user) {
+				    role = user.role;
+
+				    switch (role) {
+					    case 'leerling':
+					    	$scope.canAdd = false;
+						    break;
+					    case 'docent':
+						    $scope.canAdd = false;
+						    break;
+					    case 'roostermaker':
+						    $scope.canAdd = true;
+						    break;
+					    case 'admin':
+						    $scope.canAdd = true;
+						    break;
+					    default:
+						    $scope.canAdd = false;
+					    	break;
+				    }
+			    })
+		    });
+
+
 	    users.orderByChild("email").equalTo(user.email).on("child_added", function(usersid) {
 		    var userid = usersid.key;
 		    var tuser = fb.ref("users/" + userid);
@@ -300,8 +339,8 @@ angular.module('rooster.app.controllers', [])
 			    var currentclass = userdata.val().class;
 
 				var lessons = fb.ref('lessons');
-				var fireRef = lessons.orderByChild("class").equalTo(currentclass);
-				var allLessons = $firebaseArray(fireRef);
+			    var fireRef = lessons.orderByChild("class").equalTo(currentclass);
+			    var allLessons = $firebaseArray(fireRef);
 
 				allLessons.$loaded()
 					.then(function(){
@@ -544,17 +583,134 @@ angular.module('rooster.app.controllers', [])
 
 	.controller('SingleLessonCtrl', function ($scope, $stateParams, $firebaseArray, $state) {
 		var lessonID = $stateParams.lessonID;
-		var lesson = firebase.database().ref("lessons/" + lessonID);
+		var fb = firebase.database();
+		var lesson = fb.ref("lessons/" + lessonID);
+		var users = fb.ref('users');
+		$scope.showPresence = false;
+
+		var user = firebase.auth().currentUser;
+		if (user) {
+			var curemail = user.email;
+		} else {
+			$state.go('login');
+		}
+
+		var userref = users.orderByChild('email').equalTo(curemail);
+		var curuser = $firebaseArray(userref);
+
+
+		curuser.$loaded()
+			.then(function () {
+				angular.forEach(curuser, function (user) {
+					var role = user.role;
+					switch (role) {
+						case 'leerling':
+							$scope.canChange = true;
+							break;
+						case 'docent':
+							$scope.canChange = true;
+							break;
+						case 'roostermaker':
+							$scope.canChange = true;
+							break;
+						case 'admin':
+							$scope.canChange = true;
+							break;
+						default:
+							$scope.canChange = false;
+							break;
+					}
+				})
+			});
 		lesson.on('value', function (data) {
 			$scope.lesson = data.val();
+			var startdate = new Date( $scope.lesson.begin_date );
+			var enddate = new Date( $scope.lesson.end_date );
+			var curdate = new Date();
+			$scope.startdate = startdate.getDate() + '-' + startdate.getMonth() + '-' + startdate.getFullYear();
+			$scope.starttime = startdate.getHours() + ':' + (startdate.getMinutes()<10?'0':'') + startdate.getMinutes();
+			$scope.enddate = enddate.getDate() + '-' + enddate.getMonth() + '-' + enddate.getFullYear();
+			$scope.endtime = enddate.getHours() + ':' + (enddate.getMinutes()<10?'0':'') + enddate.getMinutes();
+			if(curdate > startdate) {
+				$scope.showPresence = true;
+			}
+
 		});
 
 		$scope.goToPresence = function () {
 			$state.go('app.presence', {"lessonID": lessonID})
+		};
+		$scope.changeLesson = function () {
+			$state.go('app.lesson_change', {"lessonID": lessonID})
+		};
+		
+		$scope.updateLesson = function () {
+			
 		}
+
+
 	})
 
-	.controller('PresenceCtrl', function ($scope, $stateParams, $firebaseArray) {
+	.controller('PresenceCtrl', function ($scope, $stateParams, $firebaseArray, $state) {
+
+		var fb = firebase.database();
+		var users = fb.ref('users');
+		$scope.users = [];
+
+		var lessonID = $stateParams.lessonID;
+		var lesson = fb.ref("lessons/" + lessonID);
+		lesson.once('value', function (data) {
+			var currentclass = data.val().class;
+			var fireRef = users.orderByChild("class").equalTo(currentclass);
+			var allUsers = $firebaseArray(fireRef);
+			$scope.presentcheck = [];
+
+			allUsers.$loaded()
+				.then(function() {
+					angular.forEach(allUsers, function (user) {
+						$scope.users.push(user);
+						var isFilled = false;
+
+						var fbPresence = fb.ref("lessons/" + lessonID + '/presence');
+						fbPresence.on('value', function (presence) {
+							var userPresence = presence.val();
+
+							for (var i = 0; i < userPresence.length; i++) {
+								if(userPresence[i].email == user.email) {
+									$scope.presentcheck.push({
+										email: user.email,
+										present: userPresence[i].present
+									});
+									isFilled = true
+								}
+
+							}
+							if(!isFilled) {
+								$scope.presentcheck.push({
+									email: user.email,
+									present: 0
+								});
+							}
+						});
+
+					});
+				});
+
+		});
+		
+		$scope.isPresent = function (email, index) {
+			if($scope.presentcheck[index].present == 1) {
+				$scope.presentcheck[index].present = 0;
+			} else {
+				$scope.presentcheck[index].present = 1;
+			}
+
+		};
+
+		$scope.submitPresence = function () {
+				fb.ref().child('/lessons/' + lessonID).update({ presence:  $scope.presentcheck});
+				$state.go('app.singleLesson', {"lessonID": lessonID});
+		}
 
 
 	})
@@ -745,16 +901,75 @@ angular.module('rooster.app.controllers', [])
 		var users = fb.ref('users');
 
 
+		if (user) {
+			var curemail = user.email;
+		} else {
+			$state.go('login');
+		}
+
+		var role;
+
+
+		var userref = users.orderByChild('email').equalTo(curemail);
+		var curuser = $firebaseArray(userref);
+
 		var absence = fb.ref('absence');
+		var allAbsence;
 		$scope.allAbsence = [];
+		$scope.userAbsence = [];
 		$scope.formData = {};
+
+		curuser.$loaded()
+			.then(function () {
+				angular.forEach(curuser, function (user) {
+					role = user.role;
+					var fireRef;
+					switch (role) {
+						case 'leerling':
+							$scope.canAdd = true;
+							fireRef = absence.orderByChild('email').equalTo(curemail);
+							allAbsence = $firebaseArray(fireRef);
+							console.log($scope.allAbsence);
+							break;
+						case 'docent':
+							$scope.canAdd = false;
+							fireRef = absence.orderByChild('viewed').equalTo(0);
+							allAbsence = $firebaseArray(fireRef);
+							break;
+						case 'roostermaker':
+							$scope.canAdd = false;
+							fireRef = absence.orderByChild('viewed').equalTo(0);
+							allAbsence = $firebaseArray(fireRef);
+							break;
+						case 'admin':
+							$scope.canAdd = false;
+							fireRef = absence.orderByChild('viewed').equalTo(0);
+							allAbsence = $firebaseArray(fireRef);
+							break;
+						default:
+							$scope.canAdd = false;
+							fireRef = absence.orderByChild('viewed').equalTo(0);
+							allAbsence = $firebaseArray(fireRef);
+							break;
+					}
+
+					allAbsence.$loaded()
+						.then(function () {
+							allAbsence.reverse();
+						});
+
+					$scope.allAbsence = allAbsence;
+				})
+			});
+
+
+
 
 		// Voorbeeld voor snelle firebase communicatie
 		//		var fireRef = absence.orderByChild('viewed').equalTo(0);
 		//		$scope.allAbsence = $firebaseArray(fireRef);
 
-		var fireRef = absence.orderByChild('viewed').equalTo(0);
-		$scope.allAbsence = $firebaseArray(fireRef);
+
 
 		function writeAbsenceData(userId, reson, description, begin_date, end_date, approved, email,displayname,viewed) {
 			fb.ref('absence/' + userId).set({

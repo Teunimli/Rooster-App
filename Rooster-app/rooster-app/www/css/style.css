@@ -79,3 +79,9 @@ h4{
 ion-tabs .tab-item {
     background: #6ca6ff !important;
 }
+.approvedAbsence, .ispresent {
+    background: #71ff55;
+}
+.rejectedAbsence {
+    background: #ff3b30;
+}
