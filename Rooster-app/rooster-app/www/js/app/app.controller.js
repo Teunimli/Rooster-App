@@ -186,6 +186,12 @@ angular.module('rooster.app.controllers', [])
 									case 'admin':	
 										$state.go('app.admin');
 									break;
+									case 'docent':
+										$state.go('app.rooster');
+										break;
+									case 'roostermaker':
+										$state.go('app.admin');
+										break;
 									default:
 										$state.go('login');
 									break;
