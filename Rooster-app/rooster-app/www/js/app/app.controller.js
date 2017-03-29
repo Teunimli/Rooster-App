@@ -306,6 +306,44 @@ angular.module('rooster.app.controllers', [])
 		var fb = firebase.database();
 		var users = fb.ref('users');
 
+
+		var role;
+		var user = firebase.auth().currentUser;
+
+		if (user) {
+			var curemail = user.email;
+		} else {
+			$state.go('login');
+		}
+
+		var fireRef = users.orderByChild('email').equalTo(curemail);
+		var curuser = $firebaseArray(fireRef);
+
+		curuser.$loaded()
+			.then(function () {
+				angular.forEach(curuser, function (user) {
+					role = user.role;
+
+					switch (role) {
+						case 'leerling':
+							$scope.canAdd = false;
+							break;
+						case 'docent':
+							$scope.canAdd = false;
+							break;
+						case 'roostermaker':
+							$scope.canAdd = true;
+							break;
+						case 'admin':
+							$scope.canAdd = true;
+							break;
+						default:
+							$scope.canAdd = false;
+							break;
+					}
+				})
+			});
+
 			$scope.title = "Rooster";
 			$scope.lessonsMonday = [];
 			$scope.lessonsTuesday = [];
